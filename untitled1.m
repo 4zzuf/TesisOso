@@ -7,7 +7,7 @@ alpha = 2 * Nr;
 SNR_dB = -30:5:40;
 SNR = 10.^(SNR_dB / 10);
 sigma_x = 1;
-channel_realizations = 200;
+channel_realizations = 3;
 full = Nr*(2*Nr-1);
 M_prime_full = 2 * Nr + full;
 M_prime_random = 2 * Nr + alpha;
@@ -19,7 +19,6 @@ I_select = zeros(length(SNR), channel_realizations);
 I_full = zeros(length(SNR), channel_realizations);
 I_withoutB = zeros(length(SNR), channel_realizations);
 I_greedy = zeros(length(SNR), channel_realizations);
-I_greedy_mse = zeros(length(SNR), channel_realizations); % nuevo
 % Modulación QPSK
 n_bits = 100;
 bits_symbol = 2;
@@ -83,39 +82,11 @@ for ch = 1:channel_realizations
         H_eff_opt = sqrt(2/pi)*Ko*B_opt*H_r;
         C_eta_opt = (2/pi)*(asin(Ko*Cz_opt*Ko) - Ko*Cz_opt*Ko) + Ko*B_opt*Cn_r*B_opt'*Ko;
         I_select(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_opt)) * ((sigma_x^2/2)*H_eff_opt*H_eff_opt')));
-        % ---------- Red Greedy por capacidad ----------
-        selected_idx_greedy = 1:(2*Nr);
-        remaining_idx = (2*Nr+1):M_prime_full;
-        for k = 1:alpha
-            best_capacity = -inf;
-            best_candidate = -1;
-            for idx = remaining_idx
-                temp_idx = [selected_idx_greedy, idx];
-                B_temp = B_full(temp_idx, :);
-                Cz_temp = B_temp * H_r * Cx_r * H_r' * B_temp' + B_temp * Cn_r * B_temp';
-                K_temp = diag(1 ./ sqrt(diag(Cz_temp)));
-                H_eff_temp = sqrt(2/pi)*K_temp*B_temp*H_r;
-                C_eta_temp = (2/pi)*(asin(K_temp*Cz_temp*K_temp) - K_temp*Cz_temp*K_temp) + K_temp*B_temp*Cn_r*B_temp'*K_temp;
-                capacity_temp = 0.5*log2(det(eye(2*Nr + k) + pinv(real(C_eta_temp)) * ((sigma_x^2/2)*H_eff_temp*H_eff_temp')));
-                if capacity_temp > best_capacity
-                    best_capacity = capacity_temp;
-                    best_candidate = idx;
-                end
-            end
-            selected_idx_greedy = [selected_idx_greedy, best_candidate];
-            remaining_idx(remaining_idx == best_candidate) = [];
-        end
-        B_greedy = B_full(selected_idx_greedy, :);
-        Cz_greedy = B_greedy * H_r * Cx_r * H_r' * B_greedy' + B_greedy * Cn_r * B_greedy';
-        Kg = diag(1 ./ sqrt(diag(Cz_greedy)));
-        H_eff_greedy = sqrt(2/pi)*Kg*B_greedy*H_r;
-        C_eta_greedy = (2/pi)*(asin(Kg*Cz_greedy*Kg) - Kg*Cz_greedy*Kg) + Kg*B_greedy*Cn_r*B_greedy'*Kg;
+        % ---------- Red Greedy ----------
+        [~, B_greedy, K_greedy, Cz_r_greedy] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
+        H_eff_greedy = sqrt(2/pi)*K_greedy*B_greedy*H_r;
+        C_eta_greedy = (2/pi)*(asin(K_greedy*Cz_r_greedy*K_greedy) - K_greedy*Cz_r_greedy*K_greedy) + K_greedy*B_greedy*Cn_r*B_greedy'*K_greedy;
         I_greedy(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_greedy)) * ((sigma_x^2/2)*H_eff_greedy*H_eff_greedy')));
-        % ---------- Greedy por MSE ----------
-        [~, B_mse, K_mse, Cz_r_mse] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
-        H_eff_mse = sqrt(2/pi)*K_mse*B_mse*H_r;
-        C_eta_mse = (2/pi)*(asin(K_mse*Cz_r_mse*K_mse) - K_mse*Cz_r_mse*K_mse) + K_mse*B_mse*Cn_r*B_mse'*K_mse;
-        I_greedy_mse(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_mse)) * ((sigma_x^2/2)*H_eff_mse*H_eff_mse')));
     end
 end
 close(h_waitbar);
@@ -125,7 +96,6 @@ I_select_av = mean(I_select, 2);
 I_full_av = mean(I_full, 2);
 I_withoutB_av = mean(I_withoutB, 2);
 I_greedy_av = mean(I_greedy, 2);
-I_greedy_mse_av = mean(I_greedy_mse, 2);
 %% Gráfico final
 figure;
 plot(SNR_dB, I_random_av, 'g-s', 'LineWidth', 2); hold on;
@@ -133,10 +103,9 @@ plot(SNR_dB, I_select_av, 'b-o', 'LineWidth', 2);
 plot(SNR_dB, I_full_av, 'r-x', 'LineWidth', 2);
 plot(SNR_dB, I_withoutB_av, 'k-.', 'LineWidth', 2);
 plot(SNR_dB, I_greedy_av, 'm-d', 'LineWidth', 2);
-plot(SNR_dB, I_greedy_mse_av, 'c-^', 'LineWidth', 2);
 xlabel('SNR (dB)', 'Interpreter', 'latex');
 ylabel('Capacidad (bits/s/Hz)', 'Interpreter', 'latex');
-legend({'Random', 'Optimized', 'Full', 'No Comparators', 'Greedy Capacity', 'Greedy MSE'}, ...
+legend({'Random', 'Optimized', 'Full', 'No Comparators', 'Greedy'}, ...
     'Interpreter', 'latex', 'Location', 'SouthEast');
 title('Capacidad vs. SNR para diferentes topologías de comparadores', 'Interpreter', 'latex');
 grid on;

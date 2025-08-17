@@ -1,4 +1,4 @@
-function [final_W, final_B, MSE_1] = greedy_search(B_all, alpha, n_cols, I_nr_r, Cn_r, H_r, Cx_r, n_max_comb, h, MSE_1)
+function [final_W, final_B, MSE_1, K, Cz_r] = greedy_search(B_all, alpha, n_cols, I_nr_r, Cn_r, H_r, Cx_r, n_max_comb, h, MSE_1)
 % Alpha first rows of B_all
 B_alpha = B_all(1:alpha,:);
 % Computing the MSE for the first alpha rows
@@ -71,7 +71,11 @@ for i=1:alpha
             MSE_1(h,i) = MSE_data_2;           
         end
         
-    end
-    
+      end
+
 end
+% Final Cz_r and K
+Cz_r = final_B*H_r*Cx_r*H_r'*final_B' + final_B*Cn_r*final_B';
+K = diag(diag(Cz_r).^(-1/2));
+
 end

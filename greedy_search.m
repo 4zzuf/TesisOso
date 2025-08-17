@@ -1,4 +1,4 @@
-function [final_W, final_B, MSE_1, K, Cz_r] = greedy_search(B_all, alpha, n_cols, I_nr_r, Cn_r, H_r, Cx_r, n_max_comb, h, MSE_1)
+function [final_W, final_B, K, Cz_r] = greedy_search(B_all, alpha, I_nr_r, Cn_r, H_r, Cx_r, n_max_comb)
 % Alpha first rows of B_all
 B_alpha = B_all(1:alpha,:);
 % Computing the MSE for the first alpha rows
@@ -52,7 +52,6 @@ for i=1:alpha
         
         %total MSE
         MSE_data_2 = trace(Cx_r) - 2*real(trace(Czqx*W')) + trace(W*Czq*W');
-        MSE_this(h,i) = MSE_data_2; 
         
         % Checking if the curent MSE is the minimum
         if MSE_data < lower_value
@@ -68,7 +67,6 @@ for i=1:alpha
         
         if MSE_data_2 < lower_value_2
             lower_value_2 = MSE_data_2;
-            MSE_1(h,i) = MSE_data_2;           
         end
         
       end

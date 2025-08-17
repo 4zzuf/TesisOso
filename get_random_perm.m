@@ -11,7 +11,7 @@ end
 
 % [ [1,2], [1,3], ..., [1, col], ..., [2,3], [2,4], ..., [2, col], ...
 % [col-1, col]
-matrix_all_perm_indexes = get_all_perm(n_max_comb, n_cols);
+matrix_all_perm_indexes = get_all_perm(n_cols);
 
 % choosing n_rows random indexes from 1 to n_max_comb
 array_random_rows_indexes = randperm(n_max_comb, n_rows);

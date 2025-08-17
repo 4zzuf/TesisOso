@@ -8,10 +8,9 @@ n_max_comb = 0;
 for i=1:n_cols-1
     n_max_comb = n_max_comb + i;
 end
-
 % [ [1,2], [1,3], ..., [1, col], ..., [2,3], [2,4], ..., [2, col], ...
 % [col-1, col]
-matrix_all_perm_indexes = get_all_perm(n_max_comb, n_cols);
+matrix_all_perm_indexes = get_all_perm(n_cols);
 
 % finding the resulting matrix
 matrix_final = zeros([n_max_comb, n_cols]);

@@ -1,7 +1,5 @@
-function dist=hamming_distance(a,b)
-dist=0;
-for i=1:length(a)
-    if abs(a(i)-b(i))>10^(-3)
-        dist=dist+1;
-    end
-end
+function dist = hamming_distance(a, b)
+%HAMMING_DISTANCE Count elements differing beyond a tolerance.
+% The threshold 1e-3 accounts for small numerical precision errors.
+
+dist = sum(abs(a - b) > 1e-3);

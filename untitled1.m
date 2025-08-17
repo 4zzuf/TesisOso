@@ -19,6 +19,7 @@ I_select = zeros(length(SNR), channel_realizations);
 I_full = zeros(length(SNR), channel_realizations);
 I_withoutB = zeros(length(SNR), channel_realizations);
 I_greedy = zeros(length(SNR), channel_realizations);
+I_sinr = zeros(length(SNR), channel_realizations);
 % Modulación QPSK
 n_bits = 100;
 bits_symbol = 2;
@@ -87,6 +88,11 @@ for ch = 1:channel_realizations
         H_eff_greedy = sqrt(2/pi)*K_greedy*B_greedy*H_r;
         C_eta_greedy = (2/pi)*(asin(K_greedy*Cz_r_greedy*K_greedy) - K_greedy*Cz_r_greedy*K_greedy) + K_greedy*B_greedy*Cn_r*B_greedy'*K_greedy;
         I_greedy(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_greedy)) * ((sigma_x^2/2)*H_eff_greedy*H_eff_greedy')));
+        % ---------- Red SINR ----------
+        [~, B_seq_SINR, ~, K_SINR, Cz_SINR, ~] = sinr_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, sigma_n, Nt, Nr);
+        H_eff_sinr = sqrt(2/pi) * K_SINR * B_seq_SINR * H_r;
+        C_eta_sinr = (2/pi)*(asin(K_SINR*Cz_SINR*K_SINR) - K_SINR*Cz_SINR*K_SINR) + K_SINR*B_seq_SINR*Cn_r*B_seq_SINR'*K_SINR;
+        I_sinr(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_sinr)) * ((sigma_x^2/2)*H_eff_sinr*H_eff_sinr')));
     end
 end
 close(h_waitbar);
@@ -96,6 +102,7 @@ I_select_av = mean(I_select, 2);
 I_full_av = mean(I_full, 2);
 I_withoutB_av = mean(I_withoutB, 2);
 I_greedy_av = mean(I_greedy, 2);
+I_sinr_av = mean(I_sinr, 2);
 %% Gráfico final
 figure;
 plot(SNR_dB, I_random_av, 'g-s', 'LineWidth', 2); hold on;
@@ -103,9 +110,10 @@ plot(SNR_dB, I_select_av, 'b-o', 'LineWidth', 2);
 plot(SNR_dB, I_full_av, 'r-x', 'LineWidth', 2);
 plot(SNR_dB, I_withoutB_av, 'k-.', 'LineWidth', 2);
 plot(SNR_dB, I_greedy_av, 'm-d', 'LineWidth', 2);
+plot(SNR_dB, I_sinr_av, 'c-^', 'LineWidth', 2);
 xlabel('SNR (dB)', 'Interpreter', 'latex');
 ylabel('Capacidad (bits/s/Hz)', 'Interpreter', 'latex');
-legend({'Random', 'Optimized', 'Full', 'No Comparators', 'Greedy'}, ...
+legend({'Random', 'Optimized', 'Full', 'No Comparators', 'Greedy', 'SINR Search'}, ...
     'Interpreter', 'latex', 'Location', 'SouthEast');
 title('Capacidad vs. SNR para diferentes topologías de comparadores', 'Interpreter', 'latex');
 grid on;

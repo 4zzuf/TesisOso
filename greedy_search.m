@@ -7,8 +7,18 @@ Cn_rand = new_B*Cn_r*new_B';
 K = diag(diag(new_B*H_r*Cx_r*H_r'*new_B'+Cn_rand).^(-1/2));
 %Czqx = sqrt(pi/2)*Cx_r*H_r'*new_B'*K;
 Czqx = sqrt(pi/2)*(1/2)*Cx_r*H_r'*new_B'*K;
-Czq = (asin(transpose(K)*real(new_B*H_r*Cx_r*H_r'*new_B'+Cn_rand)*K) + 1i*asin(transpose(K)*imag(new_B*H_r*Cx_r*H_r'*new_B'+Cn_rand)*K))^(-1);
-W = Czqx*Czq;
+
+% Compute Czq ensuring numerical stability
+Czq_matrix = asin(transpose(K) * real(new_B * H_r * Cx_r * H_r' * new_B' + Cn_rand) * K) ...
+    + 1i * asin(transpose(K) * imag(new_B * H_r * Cx_r * H_r' * new_B' + Cn_rand) * K);
+
+if size(Czq_matrix, 1) == size(Czq_matrix, 2) && cond(Czq_matrix) < 1e10
+    Czq = inv(Czq_matrix);
+else
+    Czq = pinv(Czq_matrix);
+end
+
+W = Czqx * Czq;
 %equivalent objective MSE
 MSE_data = -2*real(trace(Czqx*W')) + trace(W*Czq*W');
 %total MSE

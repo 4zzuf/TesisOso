@@ -1,13 +1,10 @@
 function m_comb = get_all_perm(n_comb, cols)
+%GET_ALL_PERM Generate all unique pair combinations
+%   m_comb = GET_ALL_PERM(n_comb, cols) returns all unique combinations
+%   of two indices from 1 to cols. The input n_comb is kept for
+%   compatibility but is not used in the computation.
 
-m_comb = zeros([n_comb 2]);
+% Generate all combinations of two indices without explicit loops
+m_comb = nchoosek(1:cols, 2);
 
-row = 0;
-for i=1:cols
-    for j=i+1:cols
-        m_comb(row+1, 1) = i;
-        m_comb(row+1, 2) = j;
-        row = row + 1;
-    end
-end
 end

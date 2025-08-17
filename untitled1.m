@@ -2,12 +2,12 @@ clear all;
 close all;
 clc;
 %% Parámetros generales
-Nt = 4; Nr = 10;
+Nt = 4; Nr = 12;
 alpha = 2 * Nr;
 SNR_dB = -30:5:40;
 SNR = 10.^(SNR_dB / 10);
 sigma_x = 1;
-channel_realizations = 3;
+channel_realizations = 4;
 full = Nr*(2*Nr-1);
 M_prime_full = 2 * Nr + full;
 M_prime_random = 2 * Nr + alpha;

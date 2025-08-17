@@ -112,7 +112,7 @@ for ch = 1:channel_realizations
         C_eta_greedy = (2/pi)*(asin(Kg*Cz_greedy*Kg) - Kg*Cz_greedy*Kg) + Kg*B_greedy*Cn_r*B_greedy'*Kg;
         I_greedy(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_greedy)) * ((sigma_x^2/2)*H_eff_greedy*H_eff_greedy')));
         % ---------- Greedy por MSE ----------
-        [~, B_mse, ~, K_mse, Cz_r_mse] = greedy_search(B_all, alpha, 2*Nr, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
+        [~, B_mse, K_mse, Cz_r_mse] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
         H_eff_mse = sqrt(2/pi)*K_mse*B_mse*H_r;
         C_eta_mse = (2/pi)*(asin(K_mse*Cz_r_mse*K_mse) - K_mse*Cz_r_mse*K_mse) + K_mse*B_mse*Cn_r*B_mse'*K_mse;
         I_greedy_mse(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_mse)) * ((sigma_x^2/2)*H_eff_mse*H_eff_mse')));

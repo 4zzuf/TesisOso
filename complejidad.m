@@ -1,3 +1,4 @@
+%% Measure average execution time for several selection strategies (full, random, CVX-based, greedy, SINR)
 clear all; close all; clc;
 
 %% Parámetros generales
@@ -31,15 +32,16 @@ for i_channel = 1:channel_realizations
         Cn_r = (sigma_n^2 / 2) * I_Nr_r;
 
         %% Red Full
-        tic;
+        A = tic;
         Cz_r_full = B_full * (H_r * Cx_r * H_r') * B_full' + B_full * Cn_r * B_full';
         k_r_full = diag(1 ./ sqrt(diag(Cz_r_full)));
         H_eff_r_q_full = sqrt(2 / pi) * k_r_full * B_full * H_r;
         lambda = (2 / pi) * ((pi / 2 - 1) + (sigma_n^2 / (2 * (Nt * sigma_x^2 / 2 + sigma_n^2 / 2))));
-        time_full(i, i_channel) = toc;
+        Time = toc(A);
+        time_full(i, i_channel) = Time;
 
         %% Método propuesto (CVX)
-        tic;
+        A = tic;
         cvx_begin quiet sdp
             variable Deltao(M_prime_full);
             maximize(0.5 * log_det(eye(2 * Nt) + 1 / lambda * (sigma_x^2 / 2) * ...
@@ -49,26 +51,31 @@ for i_channel = 1:channel_realizations
                 0 <= Deltao <= 1;
                 sum(Deltao) == 2 * Nr + alpha;
         cvx_end
-        time_proposed(i, i_channel) = toc;
+        Time = toc(A);
+        time_proposed(i, i_channel) = Time;
 
         %% Búsqueda Greedy
-        tic;
+        A = tic;
         [~, ~] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, full);
-        time_greedy(i, i_channel) = toc;
+        Time = toc(A);
+        time_greedy(i, i_channel) = Time;
 
         %% Selección basada en SINR
-        tic;
+        A = tic;
         [~, ~] = sinr_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, sigma_n, Nt, Nr);
-        time_sinr(i, i_channel) = toc;
+        Time = toc(A);
+        time_sinr(i, i_channel) = Time;
 
         %% Red Aleatoria
-        tic;
+        A = tic;
         B_rand_alpha = get_random_perm(alpha, 2 * Nr);
         B_rand = [I_Nr_r; B_rand_alpha];
         Cz_r_rand = B_rand * (H_r * Cx_r * H_r') * B_rand' + B_rand * Cn_r * B_rand';
         k_r_rand = diag(1 ./ sqrt(diag(Cz_r_rand)));
         H_eff_r_rand = sqrt(2 / pi) * k_r_rand * B_rand * H_r; %#ok<NASGU>
-        time_random(i, i_channel) = toc;
+        Time = toc(A);
+        time_random(i, i_channel) = Time;
+
     end
 end
 

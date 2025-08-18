@@ -29,7 +29,7 @@ constelation_points = exp(1i*pi*(2*(1:M)-1)/M);
 constelation_symbols = flipud((dec2bin(M-1:-1:0)-'0'));
 gray_code_data = gray_code(constelation_symbols,M);
 %% Matrices de comparación
-B_all = get_total_perm(2*Nr);
+ B_all = (1/sqrt(2)) * get_total_perm(2*Nr);
 B_rand = (1/sqrt(2)) * get_random_perm(alpha, 2 * Nr);
 B_random_full = [I_Nr_r; B_rand];
 B_alpha_f = 1/sqrt(2) * get_random_perm(full, 2 * Nr);
@@ -84,10 +84,10 @@ for ch = 1:channel_realizations
         C_eta_opt = (2/pi)*(asin(Ko*Cz_opt*Ko) - Ko*Cz_opt*Ko) + Ko*B_opt*Cn_r*B_opt'*Ko;
         I_select(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_opt)) * ((sigma_x^2/2)*H_eff_opt*H_eff_opt')));
         % ---------- Red Greedy ----------
-        [~, B_greedy, K_greedy, Cz_r_greedy] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
-        H_eff_greedy = sqrt(2/pi)*K_greedy*B_greedy*H_r;
-        C_eta_greedy = (2/pi)*(asin(K_greedy*Cz_r_greedy*K_greedy) - K_greedy*Cz_r_greedy*K_greedy) + K_greedy*B_greedy*Cn_r*B_greedy'*K_greedy;
-        I_greedy(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_greedy)) * ((sigma_x^2/2)*H_eff_greedy*H_eff_greedy')));
+        [~, B_greedy_norm, K_greedy, Cz_r_greedy] = greedy_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, size(B_all,1));
+        H_eff_greedy_norm = sqrt(2/pi)*K_greedy*B_greedy_norm*H_r;
+        C_eta_greedy_norm = (2/pi)*(asin(K_greedy*Cz_r_greedy*K_greedy) - K_greedy*Cz_r_greedy*K_greedy) + K_greedy*B_greedy_norm*Cn_r*B_greedy_norm'*K_greedy;
+        I_greedy(i,ch) = 0.5*log2(det(eye(2*Nr+alpha) + pinv(real(C_eta_greedy_norm)) * ((sigma_x^2/2)*H_eff_greedy_norm*H_eff_greedy_norm')));
         % ---------- Red SINR ----------
         [~, B_seq_SINR, ~, K_SINR, Cz_SINR, ~] = sinr_search(B_all, alpha, I_Nr_r, Cn_r, H_r, Cx_r, sigma_n, Nt, Nr);
         H_eff_sinr = sqrt(2/pi) * K_SINR * B_seq_SINR * H_r;

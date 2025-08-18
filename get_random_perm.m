@@ -1,34 +1,34 @@
-function matrix_final = get_random_perm(n_rows, n_cols)
+function matrix_final = get_random_perm(n_rows, n_cols, seed)
+%GET_RANDOM_PERM Generate random signed pair combinations.
+%   MATRIX_FINAL = GET_RANDOM_PERM(N_ROWS, N_COLS, SEED) returns a matrix
+%   with N_ROWS randomly selected signed combinations of two columns out of
+%   N_COLS columns. When SEED is provided, the random number generator is
+%   initialised with this value for reproducibility.
 
-% random number generator
-rng('shuffle');
-
-% max number of possible combinations for matrix B
-n_max_comb = 0;
-for i=1:n_cols-1
-    n_max_comb = n_max_comb + i;
+if nargin > 2
+    rng(seed);
 end
 
-% [ [1,2], [1,3], ..., [1, col], ..., [2,3], [2,4], ..., [2, col], ...
-% [col-1, col]
-matrix_all_perm_indexes = get_all_perm(n_cols);
+% Max number of possible combinations for matrix B
+n_max_comb = n_cols * (n_cols - 1) / 2;
 
-% choosing n_rows random indexes from 1 to n_max_comb
+% Generate all combinations and select random rows
+matrix_all_perm_indexes = nchoosek(1:n_cols, 2);
 array_random_rows_indexes = randperm(n_max_comb, n_rows);
+selected_perm = matrix_all_perm_indexes(array_random_rows_indexes, :);
 
-% select just the combinations of the lines sorted above
-m_with_selected_perm_indexes = matrix_all_perm_indexes(array_random_rows_indexes, :);
+% Preallocate result matrix
+matrix_final = zeros(n_rows, n_cols);
 
-% finding the resulting matrix
-matrix_final = zeros([n_rows, n_cols]);
-for i=1:n_rows
-    % setting 1 in the selected indexes
-    matrix_final(i,m_with_selected_perm_indexes(i,1)) = 1;
-    matrix_final(i,m_with_selected_perm_indexes(i,2)) = 1;
-    
-    % randomly choosing which one wil be -1
-    negative_index = randi(2);
-    matrix_final(i,m_with_selected_perm_indexes(i,negative_index)) = -1;
+% Set ones for the selected indices using vectorisation
+rows = repelem((1:n_rows)', 2);
+cols = selected_perm(:);
+matrix_final(sub2ind([n_rows, n_cols], rows, cols)) = 1;
+
+% Randomly choose which index will be -1 for each row
+negative_choice = randi(2, n_rows, 1);
+negative_cols = selected_perm(sub2ind(size(selected_perm), (1:n_rows)', negative_choice));
+matrix_final(sub2ind([n_rows, n_cols], (1:n_rows)', negative_cols)) = -1;
+
 end
 
-end

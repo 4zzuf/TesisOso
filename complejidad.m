@@ -4,7 +4,7 @@ clear all; close all; clc;
 %% Parámetros generales
 Nt = 4; Nr = 4;
 alpha = 2 * Nr;
-SNR_dB = -30:10:40;
+SNR_dB = 0;  % Evaluate at a single SNR (0 dB) to reduce computation time
 SNR = 10.^(SNR_dB / 10);
 sigma_x = 1;
 channel_realizations = 4;
@@ -75,7 +75,6 @@ for i_channel = 1:channel_realizations
         H_eff_r_rand = sqrt(2 / pi) * k_r_rand * B_rand * H_r; %#ok<NASGU>
         Time = toc(A);
         time_random(i, i_channel) = Time;
-
     end
 end
 

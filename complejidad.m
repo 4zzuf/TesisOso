@@ -75,6 +75,7 @@ for i_channel = 1:channel_realizations
         H_eff_r_rand = sqrt(2 / pi) * k_r_rand * B_rand * H_r; %#ok<NASGU>
         Time = toc(A);
         time_random(i, i_channel) = Time;
+
     end
 end
 

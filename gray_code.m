@@ -14,15 +14,7 @@ for i=2:modulation_size
     [~,index]=min(dist);
     gray_code_data(i,:) = new_bit_set(index,:);
     
-    cont=1;
-    aux = zeros(size(new_bit_set,1)-1,size(new_bit_set,2));
-    for k=1:size(new_bit_set,1)
-        if index~=k
-            aux(cont,:) = new_bit_set(k,:);
-            cont = cont + 1;
-        end
-    end
-    new_bit_set = aux;
+    new_bit_set(index,:) = [];
     dist = [];
 end
 end

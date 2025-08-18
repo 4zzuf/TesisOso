@@ -75,6 +75,4 @@ W_SINR = (Czq_SINR\Czqx_SINR);
 
 
 B_obtain=B_seq_SINR(2*Nr+1:1:end,:);
-
-
 end

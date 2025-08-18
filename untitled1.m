@@ -1,6 +1,7 @@
 clear all;
 close all;
 clc;
+rng('shuffle');
 %% Parámetros generales
 Nt = 4; Nr = 12;
 alpha = 2 * Nr;
@@ -29,10 +30,13 @@ constelation_points = exp(1i*pi*(2*(1:M)-1)/M);
 constelation_symbols = flipud((dec2bin(M-1:-1:0)-'0'));
 gray_code_data = gray_code(constelation_symbols,M);
 %% Matrices de comparación
- B_all = (1/sqrt(2)) * get_total_perm(2*Nr);
-B_rand = (1/sqrt(2)) * get_random_perm(alpha, 2 * Nr);
+seed_total_perm = randi(2^32-1);
+B_all = (1/sqrt(2)) * get_total_perm(2*Nr, seed_total_perm);
+seed_rand = randi(2^32-1);
+B_rand = (1/sqrt(2)) * get_random_perm(alpha, 2 * Nr, seed_rand);
 B_random_full = [I_Nr_r; B_rand];
-B_alpha_f = 1/sqrt(2) * get_random_perm(full, 2 * Nr);
+seed_alpha_f = randi(2^32-1);
+B_alpha_f = 1/sqrt(2) * get_random_perm(full, 2 * Nr, seed_alpha_f);
 B_full = [I_Nr_r; B_alpha_f];
 %% Simulación
 h_waitbar = waitbar(0, 'Iniciando simulación...');

@@ -1,5 +1,6 @@
 %% Measure average execution time for several selection strategies (full, random, CVX-based, greedy, SINR)
 clear all; close all; clc;
+rng('shuffle');
 
 %% Parámetros generales
 Nt = 4; Nr = 4;
@@ -12,7 +13,8 @@ channel_realizations = 4;
 %% Matrices base
 I_Nr_r = eye(2 * Nr);
 Cx_r = (1/2) * sigma_x^2 * eye(2 * Nt);
-B_all = get_total_perm(2 * Nr);
+seed_total_perm = randi(2^32-1);
+B_all = get_total_perm(2 * Nr, seed_total_perm);
 full = size(B_all, 1);
 M_prime_full = 2 * Nr + full;
 B_full = [I_Nr_r; B_all];
@@ -68,7 +70,8 @@ for i_channel = 1:channel_realizations
 
         %% Red Aleatoria
         A = tic;
-        B_rand_alpha = get_random_perm(alpha, 2 * Nr);
+        seed_rand_alpha = randi(2^32-1);
+        B_rand_alpha = get_random_perm(alpha, 2 * Nr, seed_rand_alpha);
         B_rand = [I_Nr_r; B_rand_alpha];
         Cz_r_rand = B_rand * (H_r * Cx_r * H_r') * B_rand' + B_rand * Cn_r * B_rand';
         k_r_rand = diag(1 ./ sqrt(diag(Cz_r_rand)));

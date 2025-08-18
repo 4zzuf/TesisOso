@@ -2,6 +2,9 @@ function [W_SINR, B_seq_SINR, B_obtain,K_SINR, Cz_SINR, Czq_SINR] = sinr_search(
 
 
 cx_r=diag(Cx_r);
+HCH = H_r*Cx_r*H_r';
+Cn_r_const = Cn_r;
+HrCx = H_r*Cx_r;
  % Computing the SINR per virtual subchannel per signal component
        
         noise_matix = sigma_n^2 * ones(size(B_prime_f*H_r));
@@ -13,10 +16,10 @@ cx_r=diag(Cx_r);
         for i_alpha=1:alpha
        
             % MSE per subchannel        
-            Cn_r_SINR = B_seq_SINR*Cn_r*B_seq_SINR';
-            Cz_SINR = B_seq_SINR*H_r*Cx_r*H_r'*B_seq_SINR'+Cn_r_SINR;
+            Cn_r_SINR = B_seq_SINR*Cn_r_const*B_seq_SINR';
+            Cz_SINR = B_seq_SINR*HCH*B_seq_SINR'+Cn_r_SINR;
             K_SINR = diag(diag(Cz_SINR).^(-1/2));
-            Czqx_SINR = sqrt(2/pi)*K_SINR*B_seq_SINR*H_r*Cx_r;
+            Czqx_SINR = sqrt(2/pi)*K_SINR*B_seq_SINR*HrCx;
             Czq_SINR = 2/pi*(asin(K_SINR*real(Cz_SINR)*K_SINR));
             W_SINR = ((Czq_SINR)^(-1))*Czqx_SINR;
             % MSE per user signal
@@ -36,10 +39,10 @@ cx_r=diag(Cx_r);
        
         % LRA-MMSE optimized network
        
-            Cn_r_SINR = B_seq_SINR*Cn_r*B_seq_SINR';
-            Cz_SINR = B_seq_SINR*H_r*Cx_r*H_r'*B_seq_SINR'+Cn_r_SINR;
+            Cn_r_SINR = B_seq_SINR*Cn_r_const*B_seq_SINR';
+            Cz_SINR = B_seq_SINR*HCH*B_seq_SINR'+Cn_r_SINR;
             K_SINR = diag(diag(Cz_SINR).^(-1/2));
-            Czqx_SINR = sqrt(2/pi)*K_SINR*B_seq_SINR*H_r*Cx_r;
+            Czqx_SINR = sqrt(2/pi)*K_SINR*B_seq_SINR*HrCx;
             Czq_SINR = 2/pi*(asin(K_SINR*real(Cz_SINR)*K_SINR));
             W_SINR = ((Czq_SINR)^(-1))*Czqx_SINR;
        
